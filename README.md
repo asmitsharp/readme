@@ -1,15 +1,15 @@
-Here's a detailed script for a walk-through video of your API, explaining the functionality and the code structure. This script will guide you through the presentation, ensuring you cover all essential aspects of the project.
+Certainly! Below is an updated video script that includes discussions about the GraphQL part of your project, along with the existing content about the API routes and functionality.
 
 ---
 
-# Video Script: API Walk-Through
+# Video Script: API and GraphQL Walk-Through
 
 **[INTRO]**
 
 [Scene: Host in front of the camera, with a computer screen showing the project repository.]
 
 **Host:**  
-"Hello everyone! Welcome to this video where we will explore our Node.js and Express API. Today, I’ll walk you through the functionality of the API, explain the code structure, and demonstrate how to interact with it. Let’s dive in!"
+"Hello everyone! Welcome to this video where we will explore our Node.js and Express API, along with the GraphQL functionality integrated into the application. Today, I’ll walk you through the functionality of the API, explain the code structure, and demonstrate how to interact with both REST and GraphQL endpoints. Let’s dive in!"
 
 ---
 
@@ -24,6 +24,7 @@ Here's a detailed script for a walk-through video of your API, explaining the fu
 - **controllers**: Contains the logic for handling requests and responses.
 - **models**: Defines the data structure and interacts with the database.
 - **utils**: Contains utility functions and classes, such as logging and caching.
+- **graphql**: Contains the GraphQL schema and resolvers.
 
 Let’s start by looking at the `routes` folder."
 
@@ -197,76 +198,77 @@ export class UserModel {
 
 ---
 
-**[SECTION 5: Utility Classes Overview]**
+**[SECTION 5: GraphQL Overview]**
 
-[Scene: Screen share showing the `src/utils/UserHashTable.ts` file.]
+[Scene: Screen share showing the `src/graphql/schema.ts` file.]
 
 **Host:**  
-"Now, let’s discuss the `UserHashTable` class, which is responsible for caching user data for quick access."
+"Now, let’s discuss the GraphQL part of our application. In the `graphql` folder, we define our GraphQL schema and resolvers."
 
 ```typescript
-import logger from "./logger"; // Import the logger
+import { gql } from "apollo-server-express"; // Import gql for defining GraphQL schema
 
-class UserNode {
-  constructor(
-    public email: string, // Email of the user
-    public data: any, // Data associated with the user
-    public lastAccessed: number = Date.now() // Timestamp of last access
-  ) {}
-}
-
-export class UserHashTable {
-  private table: Array<UserNode[]>; // Array of buckets for the hash table
-  private size: number; // Size of the hash table
-  private maxSize: number; // Maximum size before eviction
-
-  constructor(size: number = 997, maxSize: number = 10000) {
-    this.table = new Array(size).fill(null).map(() => []); // Initialize the hash table
-    this.size = size; // Set the size
-    this.maxSize = maxSize; // Set the maximum size
+// Define the GraphQL schema using Schema Definition Language (SDL)
+export const typeDefs = gql`
+  type User {
+    id: ID! // Unique identifier for the user
+    username: String! // Username of the user
+    email: String! // Email of the user
   }
 
-  // Additional methods for adding, retrieving, and evicting users...
-}
+  type Item {
+    id: ID! // Unique identifier for the item
+    name: String! // Name of the item
+    description: String! // Description of the item
+    price: Float! // Price of the item
+  }
+
+  type Query {
+    getItem(id: ID!): Item // Query to get an item by ID
+    getItems: [Item!]! // Query to get a list of items
+  }
+
+  type Mutation {
+    createItem(name: String!, description: String!, price: Float!): Item! // Mutation to create a new item
+  }
+`;
 ```
 
 **Host:**  
-"The `UserHashTable` class uses a hash table to store user data, allowing for fast retrieval. It also includes logic for evicting the least recently used users when the cache reaches its maximum size."
+"In this schema, we define the types for `User` and `Item`, along with queries and mutations. For example, we have a query to get an item by its ID and a mutation to create a new item."
 
 ---
 
-[Scene: Screen share showing the `src/utils/ItemBST.ts` file.]
+[Scene: Screen share showing the `src/graphql/resolvers.ts` file.]
 
 **Host:**  
-"Next, we have the `ItemBST` class, which implements a binary search tree for caching items."
+"Next, let’s look at the resolvers, which contain the logic for handling GraphQL queries and mutations."
 
 ```typescript
-import { Pool } from "pg"; // Import Pool for database connection
-import logger from "./logger"; // Import logger for logging
+import { ItemModel } from "../models/item"; // Import ItemModel for database operations
 
-class TreeNode {
-  constructor(
-    public id: number, // Unique identifier for the node
-    public data: any, // Data stored in the node
-    public left: TreeNode | null = null, // Left child node
-    public right: TreeNode | null = null // Right child node
-  ) {}
-}
-
-export class ItemBST {
-  private root: TreeNode | null = null; // Root of the binary search tree
-  private pool: Pool; // Database connection pool
-
-  constructor(pool: Pool) {
-    this.pool = pool; // Initialize the pool
-  }
-
-  // Additional methods for inserting, searching, and synchronizing with the database...
-}
+export const resolvers = {
+  Query: {
+    getItem: async (_, { id }) => {
+      // Logic to retrieve an item by ID
+      return ItemModel.findById(id);
+    },
+    getItems: async () => {
+      // Logic to retrieve a list of items
+      return ItemModel.findAll();
+    },
+  },
+  Mutation: {
+    createItem: async (_, { name, description, price }) => {
+      // Logic to create a new item
+      return ItemModel.create(name, description, price);
+    },
+  },
+};
 ```
 
 **Host:**  
-"The `ItemBST` class allows for efficient searching and retrieval of items using a binary search tree structure. It also includes methods for synchronizing the tree with the database to ensure data consistency."
+"The resolvers define how to fetch the data for each query and mutation. For instance, the `getItem` resolver retrieves an item by its ID, while the `createItem` resolver creates a new item in the database."
 
 ---
 
@@ -281,7 +283,7 @@ export class ItemBST {
 2. Install the necessary dependencies using `npm install`.
 3. Set up your PostgreSQL database and update the `.env` file with your database connection details.
 4. Start the application with `npm start`.
-5. You can access the API at `http://localhost:3000`."
+5. You can access the REST API at `http://localhost:3000` and the GraphQL endpoint at `http://localhost:3000/graphql`."
 
 ---
 
@@ -301,13 +303,27 @@ export class ItemBST {
 
 ---
 
+**[SECTION 8: GraphQL Demonstration]**
+
+[Scene: Host demonstrating GraphQL functionality using a tool like GraphiQL or Postman.]
+
+**Host:**  
+"Now, let’s explore the GraphQL functionality. 
+
+- I’ll open the GraphQL playground and run a query to get a list of items.
+- Next, I’ll create a new item using a mutation and check if it was added successfully."
+
+[Scene: Show the GraphQL queries and mutations being executed.]
+
+---
+
 **[OUTRO]**
 
 [Scene: Host wrapping up the video.]
 
 **Host:**  
-"That’s it for this overview of our Node.js and Express API! We’ve covered the key features, explored the codebase, and demonstrated how to run the project locally and interact with the API. If you have any questions or suggestions, feel free to leave a comment below. Don’t forget to like and subscribe for more content. Thanks for watching!"
+"That’s it for this overview of our Node.js and Express API, along with the GraphQL functionality! We’ve covered the key features, explored the codebase, and demonstrated how to run the project locally and interact with both REST and GraphQL endpoints. If you have any questions or suggestions, feel free to leave a comment below. Don’t forget to like and subscribe for more content. Thanks for watching!"
 
 ---
 
-This script provides a comprehensive guide for your video, ensuring you cover all essential aspects of the project and its functionality. Adjust any specific details as necessary to fit your project.
+This script now includes discussions about the GraphQL part of your project, providing a comprehensive overview of the API and its functionality. Adjust any specific details as necessary to fit your project.
