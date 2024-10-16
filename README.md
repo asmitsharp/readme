@@ -1,15 +1,15 @@
-Sure! Below is a video script that describes the project, demonstrates its features, and explains the different parts of the codebase.
+Here's a detailed script for a walk-through video of your API, explaining the functionality and the code structure. This script will guide you through the presentation, ensuring you cover all essential aspects of the project.
 
 ---
 
-# Video Script: Project Overview and Demonstration
+# Video Script: API Walk-Through
 
 **[INTRO]**
 
 [Scene: Host in front of the camera, with a computer screen showing the project repository.]
 
 **Host:**  
-"Hello everyone! Welcome to this video where we will explore a web application built using Node.js and Express. This application is designed for managing items and user authentication. Today, I’ll walk you through the key features of the project, demonstrate how it works, and explain the different parts of the codebase. Let’s get started!"
+"Hello everyone! Welcome to this video where we will explore our Node.js and Express API. Today, I’ll walk you through the functionality of the API, explain the code structure, and demonstrate how to interact with it. Let’s dive in!"
 
 ---
 
@@ -18,30 +18,23 @@ Sure! Below is a video script that describes the project, demonstrates its featu
 [Scene: Screen share showing the project structure.]
 
 **Host:**  
-"Here’s the structure of our project. At the top level, we have several folders including `routes`, `controllers`, `models`, and `utils`. Each of these folders serves a specific purpose in our application."
+"Here’s the structure of our project. We have several key folders:
+
+- **routes**: Contains the route definitions for our API.
+- **controllers**: Contains the logic for handling requests and responses.
+- **models**: Defines the data structure and interacts with the database.
+- **utils**: Contains utility functions and classes, such as logging and caching.
+
+Let’s start by looking at the `routes` folder."
 
 ---
 
-**[SECTION 2: Features]**
+**[SECTION 2: Routes Overview]**
 
-[Scene: Host explaining features with bullet points on the screen.]
-
-**Host:**  
-"This application has several key features:
-
-- **User Authentication:** Users can register and log in to the application. Upon successful login, they receive a JSON Web Token for secure access.
-- **Item Management:** Users can create, retrieve, update, delete, and search for items.
-- **Middleware:** We have authentication middleware to protect certain routes that require user authentication.
-- **Database Integration:** The application uses PostgreSQL for data storage and retrieval, ensuring data persistence."
-
----
-
-**[SECTION 3: Code Walkthrough]**
-
-[Scene: Screen share showing the `routes/item.ts` file.]
+[Scene: Screen share showing the `src/routes/item.ts` file.]
 
 **Host:**  
-"Let’s dive into the code. We’ll start with the `item.ts` file located in the `routes` folder. This file defines the routes for item-related operations."
+"First, we have the `item.ts` file in the `routes` folder. This file defines the routes for item-related operations."
 
 ```typescript
 import express from "express"; // Import the Express framework
@@ -69,11 +62,11 @@ export default router; // Export the router for use in other modules
 ```
 
 **Host:**  
-"In this file, we import the necessary functions from the item controller and set up our routes. Each route corresponds to a specific operation, such as creating or retrieving items. We also use the `authenticate` middleware to protect certain routes."
+"In this file, we import the necessary functions from the item controller and set up our routes. Each route corresponds to a specific operation, such as creating or retrieving items. We also use the `authenticate` middleware to protect certain routes that require user authentication."
 
 ---
 
-[Scene: Screen share showing the `routes/auth.ts` file.]
+[Scene: Screen share showing the `src/routes/auth.ts` file.]
 
 **Host:**  
 "Next, let’s look at the `auth.ts` file, which handles user authentication."
@@ -96,7 +89,9 @@ export default router; // Export the router for use in other modules
 
 ---
 
-[Scene: Screen share showing the `controllers/itemController.ts` file.]
+**[SECTION 3: Controllers Overview]**
+
+[Scene: Screen share showing the `src/controllers/itemController.ts` file.]
 
 **Host:**  
 "Now, let’s check out the `itemController.ts` file, which contains the logic for handling item-related operations."
@@ -117,14 +112,41 @@ export const getItem = async (req, res) => {
 ```
 
 **Host:**  
-"In this controller, we define functions for creating, retrieving, updating, and deleting items. Each function interacts with the database to perform the necessary operations."
+"In this controller, we define functions for creating, retrieving, updating, and deleting items. Each function interacts with the database to perform the necessary operations. For example, the `createItem` function will take the item details from the request body and insert them into the database."
 
 ---
 
-[Scene: Screen share showing the `models/item.ts` file.]
+[Scene: Screen share showing the `src/controllers/authController.ts` file.]
 
 **Host:**  
-"Next, we have the `item.ts` model, which defines the structure of our item data and interacts with the database."
+"Next, let’s look at the `authController.ts` file, which handles user authentication."
+
+```typescript
+import { Request, Response } from "express"; // Import Request and Response types from Express
+import jwt from "jsonwebtoken"; // Import jsonwebtoken for creating JWT tokens
+import { UserModel } from "../models/user"; // Import UserModel for user-related database operations
+import logger from "../utils/logger"; // Import logger for logging application events
+
+export const register = async (req: Request, res: Response) => {
+  // Logic to handle user registration
+};
+
+export const login = async (req: Request, res: Response): Promise<void> => {
+  // Logic to handle user login
+};
+```
+
+**Host:**  
+"This controller contains the logic for user registration and login. When a user registers, we create a new user in the database and generate a JWT token for authentication."
+
+---
+
+**[SECTION 4: Models Overview]**
+
+[Scene: Screen share showing the `src/models/item.ts` file.]
+
+**Host:**  
+"Now, let’s check out the `item.ts` model, which defines the structure of our item data and interacts with the database."
 
 ```typescript
 import pool from "../utils/db"; // Import the database connection pool
@@ -147,14 +169,108 @@ export class ItemModel {
 
 ---
 
-[Scene: Host back in front of the camera.]
+[Scene: Screen share showing the `src/models/user.ts` file.]
 
 **Host:**  
-"Finally, let’s talk about how to run this project locally."
+"Next, we have the `user.ts` model, which handles user data."
+
+```typescript
+import pool from "../utils/db"; // Import database connection pool
+import logger from "../utils/logger"; // Import logger for logging application events
+import bcrypt from "bcrypt"; // Import bcrypt for password hashing
+
+export class UserModel {
+  static async create(username, email, password) {
+    // Logic to create a new user
+  }
+
+  static async findByEmail(email) {
+    // Logic to find a user by email
+  }
+
+  // Additional methods for updating and deleting users...
+}
+```
+
+**Host:**  
+"This model defines methods for creating users, finding users by email, and validating passwords. It ensures that user data is securely managed."
 
 ---
 
-**[SECTION 4: Running the Project]**
+**[SECTION 5: Utility Classes Overview]**
+
+[Scene: Screen share showing the `src/utils/UserHashTable.ts` file.]
+
+**Host:**  
+"Now, let’s discuss the `UserHashTable` class, which is responsible for caching user data for quick access."
+
+```typescript
+import logger from "./logger"; // Import the logger
+
+class UserNode {
+  constructor(
+    public email: string, // Email of the user
+    public data: any, // Data associated with the user
+    public lastAccessed: number = Date.now() // Timestamp of last access
+  ) {}
+}
+
+export class UserHashTable {
+  private table: Array<UserNode[]>; // Array of buckets for the hash table
+  private size: number; // Size of the hash table
+  private maxSize: number; // Maximum size before eviction
+
+  constructor(size: number = 997, maxSize: number = 10000) {
+    this.table = new Array(size).fill(null).map(() => []); // Initialize the hash table
+    this.size = size; // Set the size
+    this.maxSize = maxSize; // Set the maximum size
+  }
+
+  // Additional methods for adding, retrieving, and evicting users...
+}
+```
+
+**Host:**  
+"The `UserHashTable` class uses a hash table to store user data, allowing for fast retrieval. It also includes logic for evicting the least recently used users when the cache reaches its maximum size."
+
+---
+
+[Scene: Screen share showing the `src/utils/ItemBST.ts` file.]
+
+**Host:**  
+"Next, we have the `ItemBST` class, which implements a binary search tree for caching items."
+
+```typescript
+import { Pool } from "pg"; // Import Pool for database connection
+import logger from "./logger"; // Import logger for logging
+
+class TreeNode {
+  constructor(
+    public id: number, // Unique identifier for the node
+    public data: any, // Data stored in the node
+    public left: TreeNode | null = null, // Left child node
+    public right: TreeNode | null = null // Right child node
+  ) {}
+}
+
+export class ItemBST {
+  private root: TreeNode | null = null; // Root of the binary search tree
+  private pool: Pool; // Database connection pool
+
+  constructor(pool: Pool) {
+    this.pool = pool; // Initialize the pool
+  }
+
+  // Additional methods for inserting, searching, and synchronizing with the database...
+}
+```
+
+**Host:**  
+"The `ItemBST` class allows for efficient searching and retrieval of items using a binary search tree structure. It also includes methods for synchronizing the tree with the database to ensure data consistency."
+
+---
+
+**[SECTION 6: Running the Project]**
 
 [Scene: Host explaining the steps with a screen share showing the terminal.]
 
@@ -169,13 +285,29 @@ export class ItemModel {
 
 ---
 
+**[SECTION 7: API Demonstration]**
+
+[Scene: Host demonstrating API functionality using Postman or a similar tool.]
+
+**Host:**  
+"Now, let’s demonstrate how to interact with the API using Postman. 
+
+- First, I’ll register a new user by sending a POST request to `/auth/register` with the required details.
+- Next, I’ll log in the user to receive a JWT token.
+- After that, I’ll create a new item by sending a POST request to `/items` with the item details, using the token for authentication.
+- Finally, I’ll retrieve the list of items and search for a specific item."
+
+[Scene: Show the requests and responses in Postman.]
+
+---
+
 **[OUTRO]**
 
 [Scene: Host wrapping up the video.]
 
 **Host:**  
-"That’s it for this overview of our Node.js and Express application! We’ve covered the key features, explored the codebase, and demonstrated how to run the project locally. If you have any questions or suggestions, feel free to leave a comment below. Don’t forget to like and subscribe for more content. Thanks for watching!"
+"That’s it for this overview of our Node.js and Express API! We’ve covered the key features, explored the codebase, and demonstrated how to run the project locally and interact with the API. If you have any questions or suggestions, feel free to leave a comment below. Don’t forget to like and subscribe for more content. Thanks for watching!"
 
 ---
 
-This script provides a comprehensive overview of the project, its features, and a demonstration of its functionality, making it suitable for a video presentation. Adjust any specific details as necessary to fit your project.
+This script provides a comprehensive guide for your video, ensuring you cover all essential aspects of the project and its functionality. Adjust any specific details as necessary to fit your project.
